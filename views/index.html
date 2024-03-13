@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checker</title>
+</head>
+<body>
+  <div><h1>Hash Checker Website</h1></div>
+  <div>
+    <div><input type="text" id="hashValue"></div> <!-- ใส่ id เพียงครั้งเดียว -->
+    <div><button type="button" onclick="handleHash()">search</button></div> <!-- เปลี่ยน type เป็น button -->
+  </div>
+  <br>
+  <div class="virsutotal"><h4>virustotal</h4></div>
+  <div id="virsutotal_score"></div>
+  <div id="virsutotal_verdicts"></div>
+  <div id="virsutotal_sha256"></div>
+  <div id="virsutotal_md5"></div>
+  <div class="metadefender"><h4>metadefender</h4></div>
+  <div id="metadefender_verdicts"></div>
+  <div id="metadefender_md5"></div>
+  <div id="metadefender_sha256"></div>
+    <!-- <div id="scan_time"></div>
+    <div id="def_time"></div>
+    <div id="scan_result_i"></div>
+    <div id="threat_found"></div> -->
+  <div class="hybridanalysis"><h4>hybridanalysis</h4></div>
+  <div id="hybridanalysis_verdict"></div>
+  <div id="hybridanalysis_sha256"></div>
+
+
+  <script>
+    function handleHash(){
+      const query = document.getElementById("hashValue").value;
+
+      // Fetching data from virustotal
+      fetch(`visrustotal/${query}`)
+        .then(response => response.json())
+        .then(response => {
+          const view_score = document.getElementById('virsutotal_score');
+          const totalscore = response.data.attributes.last_analysis_stats.undetected;
+          const malicious = response.data.attributes.last_analysis_stats.malicious;
+          const suspicious = response.data.attributes.last_analysis_stats.suspicious;
+          view_score.innerText = `Score : ${malicious+suspicious} / ${totalscore}`;
+          const view_verdict = document.getElementById('virsutotal_verdicts');
+          const verdict = response.data.attributes.trusted_verdict.verdict;
+          view_verdict.innerText = `Risk : ${verdict}`;
+          const view_sha256 = document.getElementById('virsutotal_sha256');
+          const sha256 = response.data.attributes.sha256;
+          view_sha256.innerText = `sha256 : ${sha256}`;
+          const view_md5 = document.getElementById('virsutotal_md5');
+          const md5 = response.data.attributes.md5;
+          view_md5.innerText = `md5 : ${md5}`;
+          
+        })
+        .catch(error => {
+          console.error('Error fetching data from virustotal:', error);
+        });
+      // Fetching data from virustotal
+      // const options = {
+      //   method: 'GET',
+      //   headers: {
+      //     accept: 'application/json',
+      //     "x-apikey": "7e5c6e793a1a490f924c62241fb795dfdcb557af3266aeb69c31dbf3a63e6980"
+      //   },
+      // };
+
+      // fetch(`https://www.virustotal.com/api/v3/files/${query}`, options)
+      //   .then(response => response.json())
+      //   .then(response => {
+      //     const resultScore = response.data.attributes.last_analysis_stats;
+      //     const views = document.getElementById('result');
+      //     const malicious = resultScore.malicious;
+      //     const suspicious = resultScore.suspicious;
+      //     const undetected = resultScore.undetected;
+          
+      //     views.innerText = `Malicious: ${malicious}, Suspicious: ${suspicious}, Undetected: ${undetected}`;
+
+      //     const view_sha = document.getElementById('sha');
+      //     const sha1 = response.data.attributes.sha1;
+      //     view_sha.innerText = `${sha1}`;
+
+      //     const view_name = document.getElementById('name');
+      //     const name = response.data.attributes.trusted_verdict.organization;
+      //     view_name.innerText = `${name}`;
+      //   })
+      //   .catch(error => {
+      //     console.error('Error fetching data from virustotal:', error);
+      //   });
+
+ 
+
+      fetch(`metadefender/${query}`)
+        .then(response => response.json())
+        .then(response => {
+          const view_verdicts = document.getElementById('metadefender_verdicts');
+          // const view_scan_time = document.getElementById('scan_time');
+          // const scan_time = response.scan_results.scan_details.AhnLab.scan_time;
+          // view_scan_time.innerText = `${scan_time}`;
+          // const view_def_time = document.getElementById('def_time');
+          // const def_time = response.scan_results.scan_details.AhnLab.def_time;
+          // view_def_time.innerText = `${def_time}`;
+          // const view_scan_result_i = document.getElementById('scan_result_i');
+          // const scan_result_i = response.scan_results.scan_details.AhnLab.scan_result_i;
+          // view_scan_result_i.innerText = `${scan_result_i}`;
+          // const view_threat_found = document.getElementById('threat_found');
+          // const threat_found = response.scan_results.scan_details.AhnLab.threat_found;
+          // view_threat_found.innerText = `${threat_found}`;
+           const name = response.process_info.verdicts;
+          for(let i in name){
+            const div = document.createElement("div")
+            div.innerText = "Risk : "+ name[i]
+            view_verdicts.appendChild(div)
+          }
+          const view_md5 = document.getElementById('metadefender_md5');
+          const md5 = response.file_info.md5;
+          view_md5.innerText = `md5 : ${md5}`;
+          const view_sha256 = document.getElementById('metadefender_sha256');
+          const sha256 = response.file_info.sha256;
+          view_sha256.innerText = `sha256 : ${sha256}`;
+
+        })
+        .catch(error => {
+          console.error('Error fetching data from metadefender:', error);
+        });
+        // Fetching data from hybridanalysis
+   
+      
+      fetch(`hybridanalysis/${query}`)
+        .then(response => response.json())
+        .then(response => {
+          console.log(response)
+          const view_verdict = document.getElementById('hybridanalysis_verdict');
+          const verdict = response.verdict;
+          view_verdict.innerText = `Risk : ${verdict}`;
+          
+          const view_sha256 = document.getElementById('hybridanalysis_sha256');
+          const sha256 = response.sha256;
+          view_sha256.innerText = `sha256 : ${sha256}`;
+          
+        })
+        .catch(error => {
+          console.error('Error fetching data from virustotal:', error);
+        });
+
+    }
+  </script>
+</body>
+</html>
